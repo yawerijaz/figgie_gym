@@ -1,0 +1,64 @@
+body { font-family: Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 18px; background: #f7f9fb; color: #111 }
+h1, h2 { color: #1b365d }
+.fg-section { background: #fff; border-radius: 8px; padding: 12px; margin: 12px 0; box-shadow: 0 1px 3px rgba(20,20,30,0.06) }
+.fg-table { width: 100%; border-collapse: collapse }
+.fg-table th { background: #eaf0fb; padding: 8px; text-align: left; border-bottom: 2px solid #dfe9f6 }
+.fg-table td { padding: 8px; border-bottom: 1px solid #f0f4f8 }
+.fg-meta { font-size: 0.9rem; color: #4b5563 }
+.fg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+@media(max-width:800px) { .fg-grid { grid-template-columns: 1fr } }
+.fg-btn { background:#1b365d;color:#fff;border:0;padding:6px 10px;border-radius:4px;cursor:pointer }
+.fg-collapsible { display:block; max-height:400px; overflow:auto }
+.fg-scroll { overflow:auto }
+
+/* Highlight the target/goal suit row */
+.target-row { background: linear-gradient(90deg, rgba(255,250,200,0.95), rgba(255,255,255,0)); }
+
+/* Two alternating agent column colors for any number of agents */
+.agent-even { background-color: rgba(59,130,246,0.06) }
+.agent-odd { background-color: rgba(34,197,94,0.06) }
+
+/* Keep per-index classes for backward compatibility but rely on parity classes */
+.agent-0 { background-color: rgba(59,130,246,0.06) }
+.agent-1 { background-color: rgba(34,197,94,0.06) }
+.agent-2 { background-color: rgba(234,88,12,0.06) }
+.agent-3 { background-color: rgba(168,85,247,0.06) }
+.agent-4 { background-color: rgba(244,63,94,0.06) }
+.agent-5 { background-color: rgba(16,185,129,0.06) }
+.agent-6 { background-color: rgba(14,165,233,0.04) }
+.agent-7 { background-color: rgba(250,204,21,0.04) }
+
+/* Make sure header cells for agents also get the tint */
+.fg-table th.agent-even, .fg-table td.agent-even { background-color: rgba(59,130,246,0.06) }
+.fg-table th.agent-odd, .fg-table td.agent-odd { background-color: rgba(34,197,94,0.06) }
+
+/* Slightly darker for initial vs final cells to distinguish */
+.agent-init { opacity: 1 }
+.agent-final { opacity: 0.95 }
+
+/* Emphasize agent cells that hold the most of the target suit */
+.agent-winner { font-weight: 700; font-size: 1.12em; color: #0b1220 }
+
+/* Navigation bar for stepping through snapshots */
+.fg-nav { display:flex; gap:8px; align-items:center; padding:8px 12px; }
+.fg-nav .fg-nav-btn { background:#0b5; color:#003; padding:6px 10px; border-radius:6px; text-decoration:none; display:inline-block }
+.fg-nav .fg-nav-btn.disabled { opacity:0.45; pointer-events:none; background:#ccc; color:#666 }
+.fg-nav .fg-meta { margin-left: 8px; font-weight:600 }
+
+.trade-aggressive-buy { background-color: rgba(78, 176, 250, 0.04) }
+.trade-aggressive-buy td { background-color: inherit }
+.trade-aggressive-sell { background-color: rgba(229, 67, 67, 0.04) }
+.trade-aggressive-sell td { background-color: inherit }
+
+/* Simple toast for small notifications */
+.fg-toast { position: fixed; right: 18px; bottom: 18px; background: rgba(11,54,93,0.94); color: #fff; padding: 10px 14px; border-radius: 8px; box-shadow: 0 4px 12px rgba(2,6,23,0.35); opacity: 0; transform: translateY(8px); transition: opacity 180ms ease, transform 180ms ease; pointer-events: none; z-index: 9999 }
+.fg-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto }
+
+/* Split layout: holdings on the left, nav + symbols on the right */
+.fg-split { display: grid; grid-template-columns: 720px 1fr; gap: 16px; align-items: start }
+.fg-left { min-width: 720px }
+.fg-right { min-width: 320px }
+@media (max-width: 900px) {
+	.fg-split { grid-template-columns: 1fr; }
+	.fg-left, .fg-right { min-width: 0 }
+}

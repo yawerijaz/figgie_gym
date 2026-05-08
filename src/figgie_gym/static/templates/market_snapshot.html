@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{{ title }}</title>
+    <style>
+        {{ css | safe }}
+    </style>
+</head>
+
+<body>
+
+
+    <div class="fg-split">
+        <div class="fg-left">
+            <header>
+                <h1>{{ title }}</h1>
+            </header>
+            <section class="fg-section">
+                <h2>Holdings summary</h2>
+                <div class="fg-scroll">
+                    <table class="fg-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">Symbol</th>
+                                {% for client in clients %}
+                                <th colspan="2"
+                                    class="agent-{{ loop.index0 }} {% if loop.index0 % 2 == 0 %}agent-even{% else %}agent-odd{% endif %}">
+                                    {{ client }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                {% for client in clients %}
+                                <th
+                                    class="agent-{{ loop.index0 }} agent-init {% if loop.index0 % 2 == 0 %}agent-even{% else %}agent-odd{% endif %}">
+                                    initial</th>
+                                <th
+                                    class="agent-{{ loop.index0 }} agent-final {% if loop.index0 % 2 == 0 %}agent-even{% else %}agent-odd{% endif %}">
+                                    final</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in holdings %}
+                            <tr class="{% if row.is_target %}target-row{% endif %}">
+                                <td><button type="button" class="fg-tab fg-btn"
+                                        data-target="tab-symbol-{{ loop.index0 }}"
+                                        aria-controls="tab-symbol-{{ loop.index0 }}">{{ row.symbol }}</button> </td>
+                                {% for pos in row.positions %}
+                                <td
+                                    class="agent-{{ loop.index0 }} agent-init {% if goal_symbol and row.symbol == goal_symbol and winners[loop.index0] %}agent-winner{% endif %} {% if loop.index0 % 2 == 0 %}agent-even{% else %}agent-odd{% endif %}">
+                                    {{ pos.initial }}</td>
+                                <td
+                                    class="agent-{{ loop.index0 }} agent-final {% if goal_symbol and row.symbol == goal_symbol and winners[loop.index0] %}agent-winner{% endif %} {% if loop.index0 % 2 == 0 %}agent-even{% else %}agent-odd{% endif %}">
+                                    {{ pos.final }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {% for s in symbols %}
+            <section id="tab-symbol-{{ loop.index0 }}" class="fg-section fg-tab-panel" role="tabpanel">
+                <div class="fg-grid">
+                    <div>
+                        <h3>Trade Summaries</h3>
+                        <table class="fg-table">
+                            <thead>
+                                <tr>
+                                    <th>client</th>
+                                    <th>avg_buy</th>
+                                    <th>buy_qty</th>
+                                    <th>net_qty</th>
+                                    <th>sell_qty</th>
+                                    <th>avg_sell</th>
+                                    <th>min_net_qty_change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in s.trade_summaries %}
+                                <tr>
+                                    <td>{{ t.client }}</td>
+                                    <td>{{ t.avg_buy | round(2) }}</td>
+                                    <td>{{ t.buy_qty }}</td>
+                                    <td>{{ t.net_qty }}</td>
+                                    <td>{{ t.sell_qty }}</td>
+                                    <td>{{ t.avg_sell | round(2) }}</td>
+                                    <td>{{ t.min_net_qty_change }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+            </section>
+            {% endfor %}
+            <p class="fg-meta">Generated at {{ generated_at }}</p>
+        </div>
+
+        <div class="fg-right">
+            <!-- Navigation controls for snapshot sequence (first / prev / next / last) -->
+            <nav class="fg-nav fg-section" aria-label="snapshot navigation">
+                <button type="button" class="fg-nav-btn" data-action="first">⏮ First</button>
+                <button type="button" class="fg-nav-btn" data-action="prev">◀ Prev</button>
+                <span id="fg-step-label" class="fg-meta">Step 0 of ?</span>
+                <button type="button" class="fg-nav-btn" data-action="next">Next ▶</button>
+                <button type="button" class="fg-nav-btn" data-action="last">Last ⏭</button>
+            </nav>
+            {% for s in symbols %}
+            <section id="tab-symbol-{{ loop.index0 }}" class="fg-section fg-tab-panel" role="tabpanel">
+                <h2>Symbol: {{ s.name }}</h2>
+
+                <div>
+                    <h3>Trades</h3>
+                    <p>
+                        <button class="fg-btn" data-target="trades-{{ loop.index0 }}">Toggle trades</button>
+                        <span class="fg-meta">({{ s.trades | length }} total)</span>
+                    </p>
+                    <div class="fg-grid fg-trade-controls">
+                        <div>
+                            <label for="trade-agent-select-{{ loop.index0 }}">Filter by agent</label>
+                            <select id="trade-agent-select-{{ loop.index0 }}" class="trade-agent-select">
+                                <option value="">-- all clients --</option>
+                                {% for c in s.trade_clients %}
+                                <option value="{{ c }}">{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label>Side</label>
+                            <div>
+                                <label><input type="radio" name="trade-side-{{ loop.index0 }}" value="all"
+                                        checked>All</label>
+                                <label><input type="radio" name="trade-side-{{ loop.index0 }}" value="buy">Buy</label>
+                                <label><input type="radio" name="trade-side-{{ loop.index0 }}" value="sell">Sell</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="trade-filter-text-{{ loop.index0 }}">Quick filter</label>
+                            <input id="trade-filter-text-{{ loop.index0 }}" class="trade-filter-text"
+                                placeholder="search buyer/seller/price...">
+                        </div>
+                        <div>
+                            <button class="fg-btn trade-filter-apply" data-index="{{ loop.index0 }}">Apply
+                                filter</button>
+                            <button class="fg-btn trade-filter-clear" data-index="{{ loop.index0 }}">Clear</button>
+                        </div>
+                    </div>
+                    <div id="trades-{{ loop.index0 }}" class="fg-collapsible trades-table"
+                        data-index="{{ loop.index0 }}">
+                        <table class="fg-table">
+                            <thead>
+                                <tr>
+                                    <th>time</th>
+                                    <th>buyer</th>
+                                    <th>seller</th>
+                                    <th>price</th>
+                                    <th>quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tr in s.trades %}
+                                <tr class="{{ 'trade-aggressive-sell' if tr.aggressive_side == -1 else 'trade-aggressive-buy' }}"
+                                    data-buyer="{{ tr.buyer }}" data-seller="{{ tr.seller }}"
+                                    data-price="{{ tr.price }}">
+                                    <td>{{ tr.trade_time }}</td>
+                                    <td>{{ tr.buyer }}</td>
+                                    <td>{{ tr.seller }}</td>
+                                    <td>{{ tr.price }}</td>
+                                    <td>{{ tr.quantity }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="fg-grid">
+                    <div style="display: none;">
+                        <h3>Trade Summaries</h3>
+                        <table class="fg-table">
+                            <thead>
+                                <tr>
+                                    <th>client</th>
+                                    <th>avg_buy</th>
+                                    <th>buy_qty</th>
+                                    <th>net_qty</th>
+                                    <th>sell_qty</th>
+                                    <th>avg_sell</th>
+                                    <th>min_net_qty_change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in s.trade_summaries %}
+                                <tr>
+                                    <td>{{ t.client }}</td>
+                                    <td>{{ t.avg_buy | round(2) }}</td>
+                                    <td>{{ t.buy_qty }}</td>
+                                    <td>{{ t.net_qty }}</td>
+                                    <td>{{ t.sell_qty }}</td>
+                                    <td>{{ t.avg_sell | round(2) }}</td>
+                                    <td>{{ t.min_net_qty_change }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <h3>Order Book</h3>
+                <div class="fg-grid">
+                    <div>
+                        <h4>Ladder</h4>
+                        <table class="fg-table">
+                            <thead>
+                                <tr>
+                                    <th>Bid</th>
+                                    <th>Price</th>
+                                    <th>Ask</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in s.ladder %}
+                                <tr>
+                                    <td>{{ row.bid }}</td>
+                                    <td>{{ row.price }}</td>
+                                    <td>{{ row.ask }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div>
+                        <h4>Top</h4>
+                        <p>Bid: {{ s.top.bid_price }} (qty {{ s.top.bid_quantity }})</p>
+                        <p>Ask: {{ s.top.ask_price }} (qty {{ s.top.ask_quantity }})</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>Orders</h3>
+                    <p>
+                        <button class="fg-btn" data-target="orders-{{ loop.index0 }}">Toggle orders</button>
+                        <span class="fg-meta">({{ s.orders | length if s.orders is defined else 0 }} total)</span>
+                    </p>
+                    <div id="orders-{{ loop.index0 }}" class="fg-collapsible orders-table"
+                        data-index="{{ loop.index0 }}">
+                        <table class="fg-table">
+                            <thead>
+                                <tr>
+                                    <th>time</th>
+                                    <th>client</th>
+                                    <th>event</th>
+                                    <th>symbol</th>
+                                    <th>side</th>
+                                    <th>price</th>
+                                    <th>quantity</th>
+                                    <th>order_id</th>
+                                    <th>type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for o in s.orders %}
+                                <tr>
+                                    <td>{{ o.time }}</td>
+                                    <td>{{ o.client }}</td>
+                                    <td>{{ o.event }}</td>
+                                    <td>{{ o.symbol }}</td>
+                                    <td>{{ o.side }}</td>
+                                    <td>{{ o.price }}</td>
+                                    <td>{{ o.quantity }}</td>
+                                    <td>{{ o.order_id }}</td>
+                                    <td>{{ o.order_type }}</td>
+                                </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        {{ js | safe }}
+    </script>
+</body>
+
+</html>
