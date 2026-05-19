@@ -1,7 +1,7 @@
 # Figgie Gym
 
 A market simulation environment for multi-agent trading games. 
-Agents trade suit-based assets in an order-book-driven marketplace where price discovery occurs as trades and quotes reveal previously hidden information. 
+Agents trade cards in different suits in an order-book-driven marketplace where price discovery occurs as trades and quotes reveal previously hidden information. 
 Operating under imperfect information, agents must perform real-time belief updates to adjust their quoting strategies to prevail in the game.
 
 ## Game Mechanics
